@@ -1,59 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-function PlantCard({ plant, onUpdatePrice, onDelete }) {
-  const [isSoldOut, setIsSoldOut] = useState(false);
-  const [price, setPrice] = useState(plant.price);
+function PlantCard({ plant }) {
+ 
+  const [isInStock, setIsInStock] = useState(true);
 
-  // Toggle sold-out status
-  function handleSoldOut() {
-    setIsSoldOut(!isSoldOut);
-  }
-
-  // Handle price update
-  function handlePriceChange() {
-    fetch(`http://localhost:6001/plants/${plant.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ price }),
-    })
-      .then((response) => response.json())
-      .then((updatedPlant) => onUpdatePrice(updatedPlant)); // Update in parent component
-  }
-
-  // Handle delete plant
-  function handleDelete() {
-    fetch(`http://localhost:6001/plants/${plant.id}`, {
-      method: 'DELETE',
-    })
-      .then(() => onDelete(plant.id)); // Remove from parent component's state
-  }
+  const handleClick = () => {
+    setIsInStock(!isInStock); 
+  };
 
   return (
-    <li className="card" data-testid="plant-item">
-      <img src={plant.image || "https://via.placeholder.com/400"} alt={plant.name} />
+    <li data-testid="plant-item" key={plant.id} className="card">
+      <img alt={plant.name} src={plant.image} />
       <h4>{plant.name}</h4>
-      <p>Price: ${price}</p>
-
-      {/* Input and button to update the price */}
-      <input
-        type="number"
-        value={price}
-        onChange={(e) => setPrice(parseFloat(e.target.value))}
-      />
-      <button onClick={handlePriceChange}>Update Price</button>
-
-      {/* Toggle sold-out status */}
-      <button 
-        className={isSoldOut ? '' : 'primary'} 
-        onClick={handleSoldOut}
-      >
-        {isSoldOut ? 'Sold Out' : 'In Stock'}
-      </button>
-
-      {/* Delete plant */}
-      <button onClick={handleDelete}>Delete</button>
+      <p>Price: {plant.price}</p>
+      {isInStock ? (
+        <button className="primary" onClick={handleClick}>In Stock</button>
+      ) : (
+        <button onClick={handleClick}>Out of Stock</button>
+      )}
     </li>
   );
 }
 
-export default PlantCard;
+export default PlantCard;

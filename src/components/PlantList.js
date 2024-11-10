@@ -1,46 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import PlantCard from './PlantCard';
+import React, { useEffect } from "react";
+import PlantCard from "./PlantCard";
 
-function PlantList() {
-  const [plants, setPlants] = useState([]);
+function PlantList({ plants, setPlants, searchedPlant }) { 
 
   useEffect(() => {
-    fetch('http://localhost:6001/plants')
-      .then((response) => response.json())
-      .then((data) => {
-        // Ensure each plant has an image property
-        const plantsWithImages = data.map(plant => ({
-          ...plant,
-          image: plant.image || "https://via.placeholder.com/400" // Use placeholder if no image
-        }));
-        setPlants(plantsWithImages);
-      });
-  }, []);
+    fetch("http://localhost:6001/plants")
+      .then(res => res.json())
+      .then(data => setPlants(data))
+  }, [])
 
-  function handleUpdatePrice(updatedPlant) {
-    const updatedPlants = plants.map((plant) =>
-      plant.id === updatedPlant.id ? updatedPlant : plant
-    );
-    setPlants(updatedPlants);
-  }
+  const filteredPlants = searchedPlant === "" ? 
+    [...plants] :
+    plants.filter(plant => plant.name.toLowerCase().includes(searchedPlant.toLowerCase()))
 
-  function handleDelete(plantId) {
-    const updatedPlants = plants.filter((plant) => plant.id !== plantId);
-    setPlants(updatedPlants);
+  function renderPlants() {
+    return filteredPlants.map(plant => {
+      return <PlantCard key={plant.id} plant={plant}/>
+    })
   }
 
   return (
     <ul className="cards">
-      {plants.map((plant) => (
-        <PlantCard
-          key={plant.id}
-          plant={plant}
-          onUpdatePrice={handleUpdatePrice}
-          onDelete={handleDelete}
-        />
-      ))}
+      {renderPlants()}
     </ul>
   );
 }
 
-export default PlantList;
+export default PlantList;
